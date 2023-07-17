@@ -8,7 +8,9 @@
   "scripts": {
     "start": "node server",
     "dev": "node dev",
-    "build": "webpack --profile --config dev/webpack/webpack.prod.js",
+    "updev": "docker-compose -f dev/containers/docker-compose.yml up -d",
+    "downdev": "docker-compose -f dev/containers/docker-compose.yml down",
+    "build": "docker build -t it-wiki -f dev/build/Dockerfile .",
     "watch": "webpack --config dev/webpack/webpack.dev.js",
     "test": "eslint --format codeframe --ext .js,.vue . && pug-lint server/views && jest",
     "cypress:open": "cypress open"
