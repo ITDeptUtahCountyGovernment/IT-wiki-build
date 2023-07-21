@@ -5,7 +5,7 @@ on:
 jobs:
   build:
     name: Staging Deployment
-    runs-on: [self-hosted, staging]
+    runs-on: [self-hosted]
     strategy:
       matrix:
         node-version: [16.x]
