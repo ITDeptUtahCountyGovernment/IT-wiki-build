@@ -35,7 +35,7 @@ jobs:
       - name: Build and Push Docker Images
         run: |
           echo ${{ steps.ksm.outputs.DOCKER_REG_PW }} | docker login -u ucappdeploy --password-stdin dockreg.utahcounty.gov
-          npm i && npm run build --env=staging
+          docker build -t it-wiki -f dev/build/Dockerfile .
           docker tag it-wiki $DOCKER_IMAGE
           docker push $DOCKER_IMAGE
           docker rmi  $DOCKER_IMAGE
