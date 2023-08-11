@@ -43,5 +43,5 @@ jobs:
         run: |
           rancher login --context $RANCHER_CONTEXT_ID --token ${{ steps.ksm.outputs.RANCHER_BEARER_TOKEN }} https://rancher.utahcounty.gov
           rancher context current
-          rancher kubectl set image deployment/it-wiki-staging-app it-wiki=$DOCKER_IMAGE -n $RANCHER_NAMESPACE
+          rancher kubectl set image deployment/it-wiki-staging-app it-wiki-staging-app=$DOCKER_IMAGE -n $RANCHER_NAMESPACE
           rm -f ~/.rancher/cli2.json
