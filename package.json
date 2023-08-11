@@ -4,11 +4,13 @@
   "releaseDate": "2019-01-01T01:01:01.000Z",
   "description": "A modern, lightweight and powerful wiki app built on NodeJS, Git and Markdown",
   "main": "wiki.js",
-  "dev": true,
+  "dev": false,
   "scripts": {
     "start": "node server",
     "dev": "node dev",
-    "build": "webpack --profile --config dev/webpack/webpack.prod.js",
+    "updev": "docker-compose -f dev/containers/docker-compose.yml up -d",
+    "downdev": "docker-compose -f dev/containers/docker-compose.yml down",
+    "build": "docker build -t it-wiki -f dev/build/Dockerfile .",
     "watch": "webpack --config dev/webpack/webpack.dev.js",
     "test": "eslint --format codeframe --ext .js,.vue . && pug-lint server/views && jest",
     "cypress:open": "cypress open"
@@ -17,15 +19,6 @@
     "type": "git",
     "url": "git+https://github.com/Requarks/wiki.git"
   },
-  "keywords": [
-    "wiki",
-    "wikis",
-    "docs",
-    "documentation",
-    "markdown",
-    "guides",
-    "knowledge base"
-  ],
   "author": "Nicolas Giard",
   "license": "AGPL-3.0",
   "bugs": {
