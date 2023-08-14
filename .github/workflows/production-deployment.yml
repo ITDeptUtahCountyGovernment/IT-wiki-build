@@ -1,0 +1,47 @@
+name: Staging Deployment
+on:
+  push:
+    branches: [production]
+jobs:
+  build:
+    name: Production Deployment
+    runs-on: [self-hosted]
+    strategy:
+      matrix:
+        node-version: [16.x]
+    env:
+      KEEPER_PASSWORD: ${{secrets.KEEPER_PASS}}
+    steps:
+      - uses: actions/checkout@v2
+        with: 
+          persist-credentials: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Retrieve secrets from Keeper
+        id: ksm
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KSM_CONFIG }}
+          secrets: |
+            jEMmS78jgRsCKQOkMVbOTA/field/password           > DOCKER_REG_PW
+            cmYfLdvMU9ZL0J7nV9J_xg/field/password           > RANCHER_BEARER_TOKEN
+      - name: Read & Set Config Vars to GITHUB_ENV
+        run: |
+          source .github/workflows/read_and_set_env.sh
+          .github/workflows/assemble_workflow_vars.sh 
+          .github/workflows/get_rancher_context_id.sh ${{ steps.ksm.outputs.RANCHER_BEARER_TOKEN }}
+      - name: Build and Push Docker Images
+        run: |
+          echo ${{ steps.ksm.outputs.DOCKER_REG_PW }} | docker login -u ucappdeploy --password-stdin dockreg.utahcounty.gov
+          docker build -t it-wiki -f dev/build/Dockerfile .
+          docker tag it-wiki $DOCKER_IMAGE
+          docker push $DOCKER_IMAGE
+          docker rmi  $DOCKER_IMAGE
+      - name: Update Rancher image reference
+        run: |
+          rancher login --context $RANCHER_CONTEXT_ID --token ${{ steps.ksm.outputs.RANCHER_BEARER_TOKEN }} https://rancher.utahcounty.gov
+          rancher context current
+          rancher kubectl set image deployment/it-wiki-production-app wiki=$DOCKER_IMAGE -n $RANCHER_NAMESPACE
+          rm -f ~/.rancher/cli2.json
